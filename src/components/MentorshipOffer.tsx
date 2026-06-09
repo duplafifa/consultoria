@@ -58,7 +58,7 @@ export default function MentorshipOffer({ spotsLeft: propsSpotsLeft }: Mentorshi
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-5xl mx-auto font-sans">
         {/* Antigo Caminho / Fraude Comercial */}
-        <div className="lg:col-span-5 bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6 md:p-8 space-y-6 relative overflow-hidden flex flex-col justify-between">
+        <div id="armadilha" className="lg:col-span-5 bg-zinc-950/40 border border-zinc-900 rounded-2xl p-6 md:p-8 space-y-6 relative overflow-hidden h-fit">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-red-500">
               <AlertTriangle className="w-5 h-5 shrink-0" />
