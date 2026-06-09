@@ -83,7 +83,7 @@ export default function MarketsShowcase() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Lado Esquerdo - Mercado Switchers e Titulo */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
           <div className="space-y-3">
             <span className="text-xs font-mono font-bold text-[#00FF66] uppercase tracking-widest block">Estatística e Padrões Ocultos</span>
             <h3 className="text-2xl md:text-3xl font-display font-black text-white leading-tight uppercase">
@@ -91,7 +91,7 @@ export default function MarketsShowcase() {
               <span className="text-gradient">Probabilidades Vencedoras</span>
             </h3>
             <p className="text-xs md:text-sm text-zinc-400 leading-relaxed">
-              Operamos apenas nos mercados que oferecem desvios estatísticos de grande valor matemático. Selecione a modalidade para visualizar os detalhes:
+              Operamos apenas nos mercados que oferecem desvios estatísticos de grande valor matemática. Selecione a modalidade para visualizar os detalhes:
             </p>
           </div>
 
@@ -138,46 +138,51 @@ export default function MarketsShowcase() {
 
         {/* Lado Direito - Cards do Mercado */}
         <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filteredMarkets.map((market) => (
-            <div 
-              key={market.id} 
-              className="bg-zinc-900/40 border border-zinc-850 hover:border-[#00FF66]/40 rounded-2xl p-6 flex flex-col justify-between space-y-4 hover:shadow-xl hover:shadow-[#00FF66]/5 transition-all duration-300 relative group"
-            >
-              {/* Target glow effect */}
-              <div className="absolute top-4 right-4 w-1.5 h-1.5 rounded-full bg-[#00FF66] transition-all opacity-40 group-hover:opacity-100 group-hover:scale-125" />
+          {filteredMarkets.map((market, index) => {
+            const isLastOfOdd = index === filteredMarkets.length - 1 && filteredMarkets.length % 2 !== 0;
+            return (
+              <div 
+                key={market.id} 
+                className={`bg-zinc-900/40 border border-zinc-850 hover:border-[#00FF66]/40 rounded-2xl p-6 flex flex-col justify-between space-y-4 hover:shadow-xl hover:shadow-[#00FF66]/5 transition-all duration-300 relative group ${
+                  isLastOfOdd ? 'md:col-span-2' : ''
+                }`}
+              >
+                {/* Target glow effect */}
+                <div className="absolute top-4 right-4 w-1.5 h-1.5 rounded-full bg-[#00FF66] transition-all opacity-40 group-hover:opacity-100 group-hover:scale-125" />
 
-              <div className="space-y-3.5">
-                <span className="text-[10px] font-mono tracking-widest text-[#00FF66] font-bold uppercase block bg-[#00FF66]/10 border border-[#00FF66]/20 px-2 py-0.5 rounded w-fit">
-                  Assertividade Ideal: {market.averageAssertiveness}
-                </span>
-
-                <h4 className="font-display font-black text-white text-base md:text-lg uppercase">
-                  {market.name}
-                </h4>
-
-                <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
-                  {market.description}
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-zinc-850 grid grid-cols-2 gap-3 text-[11px] font-mono">
-                <div>
-                  <span className="text-zinc-500 block uppercase text-[9px] tracking-wide">Indicador Alvo:</span>
-                  <span className="font-bold text-zinc-350 text-xs truncate block">{market.indicator}</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 block uppercase text-[9px] tracking-wide">Risco:</span>
-                  <span className={`font-bold text-xs flex items-center gap-1 mt-0.5 uppercase ${
-                    market.difficulty === 'Baixo' ? 'text-[#00FF66]' :
-                    market.difficulty === 'Médio' ? 'text-amber-400' : 'text-rose-500'
-                  }`}>
-                    <Target className="w-3.5 h-3.5" />
-                    {market.difficulty}
+                <div className="space-y-3.5">
+                  <span className="text-[10px] font-mono tracking-widest text-[#00FF66] font-bold uppercase block bg-[#00FF66]/10 border border-[#00FF66]/20 px-2 py-0.5 rounded w-fit">
+                    Assertividade Ideal: {market.averageAssertiveness}
                   </span>
+
+                  <h4 className="font-display font-black text-white text-base md:text-lg uppercase">
+                    {market.name}
+                  </h4>
+
+                  <p className="text-zinc-400 text-xs md:text-sm leading-relaxed">
+                    {market.description}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-zinc-850 grid grid-cols-2 gap-3 text-[11px] font-mono">
+                  <div>
+                    <span className="text-zinc-500 block uppercase text-[9px] tracking-wide">Indicador Alvo:</span>
+                    <span className="font-bold text-zinc-350 text-xs truncate block">{market.indicator}</span>
+                  </div>
+                  <div>
+                    <span className="text-zinc-500 block uppercase text-[9px] tracking-wide">Risco:</span>
+                    <span className={`font-bold text-xs flex items-center gap-1 mt-0.5 uppercase ${
+                      market.difficulty === 'Baixo' ? 'text-[#00FF66]' :
+                      market.difficulty === 'Médio' ? 'text-amber-400' : 'text-rose-500'
+                    }`}>
+                      <Target className="w-3.5 h-3.5" />
+                      {market.difficulty}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
