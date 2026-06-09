@@ -1,0 +1,6 @@
+{
+  "name": "Dupla Fifa - Mentoria Elite",
+  "description": "Landing page de alta conversão para a Dupla Fifa com o mentor LuCanto, com calculadora de retorno e inteligência estratégica.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
