@@ -357,7 +357,7 @@ export default function App() {
           <div className="text-center max-w-4xl mx-auto space-y-6">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black tracking-tight text-white leading-[1.1] uppercase">
               Pare de quebrar sua banca! <br />
-              <span className="text-[#00FF66]">Aprenda a Pensar</span> como as grandes tipsters!
+              <span className="text-[#00FF66]">Aprenda a Pensar</span> como os grandes tipsters!
             </h1>
             
             <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
