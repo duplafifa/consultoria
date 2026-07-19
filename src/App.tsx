@@ -42,132 +42,105 @@ import { useAuth } from './context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
 
+// Helper functions and constants
+interface CustomNotification {
+  type: 'standard' | 'vitalicia';
+  message: string;
+  tag: string;
+}
+
+const getCountdownTo18 = () => {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(18, 0, 0, 0);
+  
+  if (now.getTime() >= target.getTime()) {
+    target.setDate(target.getDate() + 1);
+  }
+  
+  const diffMs = target.getTime() - now.getTime();
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
+  const seconds = Math.floor((diffMs / 1000) % 60);
+  
+  return { hours, minutes, seconds };
+};
+
+const getInitialSpots = () => {
+  const stored = localStorage.getItem('duplafifa_spots_left');
+  if (stored) {
+    const parsed = parseInt(stored, 10);
+    if (!isNaN(parsed) && parsed > 0) return parsed;
+  }
+  
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const totalMinutes = hours * 60 + minutes;
+  
+  const startMinutes = 9 * 60;
+  const endMinutes = 22 * 60;
+  
+  if (totalMinutes < startMinutes) {
+    return 13;
+  } else if (totalMinutes >= endMinutes) {
+    return 2;
+  } else {
+    const elapsed = totalMinutes - startMinutes;
+    const duration = endMinutes - startMinutes;
+    const ratio = elapsed / duration;
+    const rawSpots = 13 - (ratio * 11);
+    const spots = Math.ceil(rawSpots);
+    return Math.max(2, spots);
+  }
+};
+
+const notificationsList = [
+  "Carlos H. de São Paulo garantiu vaga vitalícia ✅",
+  "Juliana M. de Porto Alegre ativou o acesso VIP ✅",
+  "Guto R. acabou de entrar no Telegram Dupla Fifa ✅",
+  "Lucas S. simulou e garantiu acesso com o LuCanto ✅",
+  "Vinícius P. de Belo Horizonte liberou o lote vitalício ✅"
+];
+
+const footballFanNames = [
+  "Thiago 'Artilheiro do Chute a Gol' Silva ⚽",
+  "Rodrigo 'Louco Pelo Timão' Almeida ⚽",
+  "Marcos 'Mito do Cartola FC' Oliveira ⚽",
+  "Gabriel 'Sócio Arquibancada VIP' Santos ⚽",
+  "Felipe 'Fanático do Allianz' Costa ⚽",
+  "Xande 'Geral do Grêmio' Souza ⚽",
+  "Igor 'Voto de Confiança no VAR' Pereira ⚽",
+  "Lucas 'Camisa 10 do Racha' Lima ⚽",
+  "Neto 'Comentarista de Sofá' Ribeiro ⚽",
+  "Vini 'Rei do e-Soccer' Martins ⚽",
+  "Dudu 'Manto Sagrado' Carvalho ⚽",
+  "Zeca 'Churrasco & Premiere Esportes' Ramos ⚽",
+  "Beto 'Fanático da Colina' Guedes ⚽",
+  "Afonso 'Sócio Torcedor Vitalício' Barbosa ⚽",
+  "Renato 'Cruzador de Escanteio' Mendes ⚽",
+  "Matheus 'Fiel Louco do Bando' Pinto ⚽",
+  "Bruno 'Arquibancada e Cerveja' Ferreira ⚽",
+  "Daniel 'Oito e Meia do Racha' Cardoso ⚽",
+  "Rafa 'Olheiro Oficial da Rodada' Teixeira ⚽",
+  "Guto 'Fanático Tricolor Paulista' Moraes ⚽",
+  "Henrique 'Gênio dos Dados Esportivos' Castro ⚽",
+  "Tito 'Estrela das Ligas VIP' Azevedo ⚽",
+  "Eduardo 'Louco da Geral' Barros ⚽",
+  "Otávio 'Coronel do Cartola' Neves ⚽",
+  "Caio 'Fanático por Escanteios' Faria ⚽"
+];
+
 export default function App() {
   console.log("App component rendered");
   const { user, role, loading, error } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const [view, setView] = useState<'home' | 'admin' | 'studentProfile'>('home');
-  const getCountdownTo18 = () => {
-    const now = new Date();
-    const target = new Date();
-    target.setHours(18, 0, 0, 0);
-    
-    if (now.getTime() >= target.getTime()) {
-      target.setDate(target.getDate() + 1);
-    }
-    
-    const diffMs = target.getTime() - now.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs / (1000 * 60)) % 60);
-    const seconds = Math.floor((diffMs / 1000) % 60);
-    
-    return { hours, minutes, seconds };
-  };
-
   const [timeLeft, setTimeLeft] = useState(getCountdownTo18());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getCountdownTo18());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  if (loading) return <div className="text-white text-center p-20">Carregando...</div>;
-  if (error) return <div className="text-red-500 text-center p-20">{error}</div>;
-  if (!user) return <Auth />;
-
-  // Dynamic spotsLeft logic with persistence
-  const getInitialSpots = () => {
-    const stored = localStorage.getItem('duplafifa_spots_left');
-    if (stored) {
-      const parsed = parseInt(stored, 10);
-      if (!isNaN(parsed) && parsed > 0) return parsed;
-    }
-    
-    // Default dynamic starting spots based on time of day (similar to current getDynamicSpots)
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const totalMinutes = hours * 60 + minutes;
-    
-    const startMinutes = 9 * 60; // 09:00 AM
-    const endMinutes = 22 * 60;   // 22:00 PM
-    
-    if (totalMinutes < startMinutes) {
-      return 13;
-    } else if (totalMinutes >= endMinutes) {
-      return 2; // Always keep at least 2 for conversions
-    } else {
-      const elapsed = totalMinutes - startMinutes;
-      const duration = endMinutes - startMinutes;
-      const ratio = elapsed / duration;
-      const rawSpots = 13 - (ratio * 11); // down to 2
-      const spots = Math.ceil(rawSpots);
-      return Math.max(2, spots);
-    }
-  };
-
   const [spotsLeft, setSpotsLeft] = useState<number>(getInitialSpots());
-
-  // Notification types
-  interface CustomNotification {
-    type: 'standard' | 'vitalicia';
-    message: string;
-    tag: string;
-  }
-
   const [recentNotification, setRecentNotification] = useState<CustomNotification | null>(null);
 
-  // Lista de notificações de novos VIP alunos (standard conversion notices)
-  const notificationsList = [
-    "Carlos H. de São Paulo garantiu vaga vitalícia ✅",
-    "Juliana M. de Porto Alegre ativou o acesso VIP ✅",
-    "Guto R. acabou de entrar no Telegram Dupla Fifa ✅",
-    "Lucas S. simulou e garantiu acesso com o LuCanto ✅",
-    "Vinícius P. de Belo Horizonte liberou o lote vitalício ✅"
-  ];
-
-  // Nomes ou alias aleatórios de pessoas que gostam de futebol
-  const footballFanNames = [
-    "Thiago 'Artilheiro do Chute a Gol' Silva ⚽",
-    "Rodrigo 'Louco Pelo Timão' Almeida ⚽",
-    "Marcos 'Mito do Cartola FC' Oliveira ⚽",
-    "Gabriel 'Sócio Arquibancada VIP' Santos ⚽",
-    "Felipe 'Fanático do Allianz' Costa ⚽",
-    "Xande 'Geral do Grêmio' Souza ⚽",
-    "Igor 'Voto de Confiança no VAR' Pereira ⚽",
-    "Lucas 'Camisa 10 do Racha' Lima ⚽",
-    "Neto 'Comentarista de Sofá' Ribeiro ⚽",
-    "Vini 'Rei do e-Soccer' Martins ⚽",
-    "Dudu 'Manto Sagrado' Carvalho ⚽",
-    "Zeca 'Churrasco & Premiere Esportes' Ramos ⚽",
-    "Beto 'Fanático da Colina' Guedes ⚽",
-    "Afonso 'Sócio Torcedor Vitalício' Barbosa ⚽",
-    "Renato 'Cruzador de Escanteio' Mendes ⚽",
-    "Matheus 'Fiel Louco do Bando' Pinto ⚽",
-    "Bruno 'Arquibancada e Cerveja' Ferreira ⚽",
-    "Daniel 'Oito e Meia do Racha' Cardoso ⚽",
-    "Rafa 'Olheiro Oficial da Rodada' Teixeira ⚽",
-    "Guto 'Fanático Tricolor Paulista' Moraes ⚽",
-    "Henrique 'Gênio dos Dados Esportivos' Castro ⚽",
-    "Tito 'Estrela das Ligas VIP' Azevedo ⚽",
-    "Eduardo 'Louco da Geral' Barros ⚽",
-    "Otávio 'Coronel do Cartola' Neves ⚽",
-    "Caio 'Fanático por Escanteios' Faria ⚽"
-  ];
-
-  // Temporizador de escassez regressivo até 18:00
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getCountdownTo18());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  // Triggers standard alerts
   const triggerStandardNotification = () => {
     const randomText = notificationsList[Math.floor(Math.random() * notificationsList.length)];
     setRecentNotification({
@@ -181,18 +154,15 @@ export default function App() {
     }, 5000);
   };
 
-  // Triggers high conversion Vitalícia Purchase alert with football fan alias
   const triggerVitaliciaPurchase = () => {
     const randomFan = footballFanNames[Math.floor(Math.random() * footballFanNames.length)];
     
-    // Decrease remaining spots
     setSpotsLeft((prev) => {
       const nextSpots = Math.max(2, prev - 1);
       localStorage.setItem('duplafifa_spots_left', nextSpots.toString());
       return nextSpots;
     });
 
-    // Save timestamp
     localStorage.setItem('duplafifa_last_purchase', Date.now().toString());
 
     setRecentNotification({
@@ -206,27 +176,27 @@ export default function App() {
     }, 7000);
   };
 
-  // Setup loop for standard alerts
   useEffect(() => {
-    // Initial standard notification after 3 seconds
+    const timer = setInterval(() => {
+      setTimeLeft(getCountdownTo18());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
     const initialTimeout = setTimeout(triggerStandardNotification, 3000);
-
-    // Standard alerts loop every 20 seconds
     const interval = setInterval(triggerStandardNotification, 20000);
-
     return () => {
       clearTimeout(initialTimeout);
       clearInterval(interval);
     };
   }, []);
 
-  // Setup persistence, initial demo, and 45-minute checks for Vitalícia Purchases
   useEffect(() => {
     const nowMs = Date.now();
     const lastTimestamp = localStorage.getItem('duplafifa_last_purchase');
-    const intervalMs = 45 * 60 * 1000; // 45 minutes in ms
+    const intervalMs = 45 * 60 * 1000;
     
-    // Check if 45-minute periods have passed during user absence
     if (lastTimestamp) {
       const lastTime = parseInt(lastTimestamp, 10);
       if (!isNaN(lastTime)) {
@@ -238,17 +208,14 @@ export default function App() {
             localStorage.setItem('duplafifa_spots_left', nextSpots.toString());
             return nextSpots;
           });
-          // Update timestamp to the boundary of the last elapsed interval
           const updatedLastTime = lastTime + (finishedPeriods * intervalMs);
           localStorage.setItem('duplafifa_last_purchase', updatedLastTime.toString());
         }
       }
     } else {
-      // First time initialization
       localStorage.setItem('duplafifa_last_purchase', nowMs.toString());
     }
 
-    // Trigger an initial purchase simulation after 8 seconds of first session visit to let the user review instantly
     const demoTimeout = setTimeout(() => {
       const alreadyShownInSession = sessionStorage.getItem('duplafifa_demo_shown');
       if (!alreadyShownInSession) {
@@ -257,7 +224,6 @@ export default function App() {
       }
     }, 8000);
 
-    // Active polling block verifying every 30 seconds if a 45-minute period ticked in real-time
     const realTimeCheckInterval = setInterval(() => {
       const currentNowMs = Date.now();
       const currentLastTimestamp = localStorage.getItem('duplafifa_last_purchase');
@@ -274,6 +240,10 @@ export default function App() {
       clearInterval(realTimeCheckInterval);
     };
   }, []);
+
+  if (loading) return <div className="text-white text-center p-20">Carregando...</div>;
+  if (error) return <div className="text-red-500 text-center p-20">{error}</div>;
+  if (!user) return <Auth />;
 
   // Scroll suave com ID
   const scrollToId = (id: string) => {

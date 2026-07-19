@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth, db } from '../lib/firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { UserRole } from '../types';
 
@@ -10,18 +10,28 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<UserRole>('student');
 
+  useEffect(() => {
+    getRedirectResult(auth).then(async (result) => {
+      if (result) {
+        const userRef = doc(db, 'users', result.user.uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) {
+          await setDoc(userRef, {
+            email: result.user.email,
+            role: 'student'
+          });
+        }
+      }
+    }).catch((error) => {
+      console.error(error);
+      alert('Erro ao finalizar login com Google');
+    });
+  }, []);
+
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const userRef = doc(db, 'users', result.user.uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          email: result.user.email,
-          role: 'student'
-        });
-      }
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error(error);
       alert('Erro no login com Google');
