@@ -29,3 +29,39 @@ export interface FAQItem {
   question: string;
   answer: string;
 }
+
+export type UserRole = 'student' | 'admin';
+
+export interface UserProfile {
+  email: string;
+  role: UserRole;
+  purchasedCourses: string[];
+  completedLessons: string[];
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  duration: string;
+  description: string;
+  videoUrl?: string;
+  bannerUrl?: string;
+  textContent?: string;
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  category: string;
+  duration: string;
+  modules: Module[];
+  instructor: string;
+  description: string;
+  bannerUrl?: string;
+}

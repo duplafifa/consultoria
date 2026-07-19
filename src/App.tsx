@@ -22,7 +22,8 @@ import {
   X,
   Lock,
   Instagram,
-  Youtube
+  Youtube,
+  LogOut
 } from 'lucide-react';
 
 import MarketsShowcase from './components/MarketsShowcase';
@@ -30,10 +31,23 @@ import ReturnCalculator from './components/ReturnCalculator';
 import SocialProof from './components/SocialProof';
 import MentorSection from './components/MentorSection';
 import MentorshipOffer from './components/MentorshipOffer';
+import AcademySection from './components/AcademySection';
+import CourseDetail from './components/CourseDetail';
+import StudentProfile from './components/StudentProfile';
+import AdminDashboard from './components/AdminDashboard';
 import FAQ from './components/FAQ';
+import Auth from './components/Auth';
+import { Course } from './types';
+import { useAuth } from './context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
 
 export default function App() {
+  console.log("App component rendered");
+  const { user, role, loading, error } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeCourse, setActiveCourse] = useState<Course | null>(null);
+  const [view, setView] = useState<'home' | 'admin' | 'studentProfile'>('home');
   const getCountdownTo18 = () => {
     const now = new Date();
     const target = new Date();
@@ -52,6 +66,17 @@ export default function App() {
   };
 
   const [timeLeft, setTimeLeft] = useState(getCountdownTo18());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(getCountdownTo18());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  if (loading) return <div className="text-white text-center p-20">Carregando...</div>;
+  if (error) return <div className="text-red-500 text-center p-20">{error}</div>;
+  if (!user) return <Auth />;
 
   // Dynamic spotsLeft logic with persistence
   const getInitialSpots = () => {
@@ -290,11 +315,15 @@ export default function App() {
 
           {/* Menu de Navegação Desktop */}
           <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            <button onClick={() => scrollToId('mercados')} className="hover:text-emerald-400 transition-colors cursor-pointer">Mercados</button>
-            <button onClick={() => scrollToId('calculadora')} className="hover:text-emerald-400 transition-colors cursor-pointer">Análise & ROI</button>
-            <button onClick={() => scrollToId('depoimentos')} className="hover:text-emerald-400 transition-colors cursor-pointer">Prova Social</button>
-            <button onClick={() => scrollToId('mentor')} className="hover:text-emerald-400 transition-colors cursor-pointer">O Mentor</button>
-            <button onClick={() => scrollToId('faq')} className="hover:text-emerald-450 transition-colors cursor-pointer">FAQ</button>
+            <button onClick={() => { setView('home'); scrollToId('mercados'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Mercados</button>
+            <button onClick={() => { setView('home'); scrollToId('calculadora'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Análise & ROI</button>
+            <button onClick={() => { setView('home'); scrollToId('academia'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Academia</button>
+            <button onClick={() => { setView('home'); scrollToId('depoimentos'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Prova Social</button>
+            <button onClick={() => { setView('home'); scrollToId('mentor'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">O Mentor</button>
+            {role === 'student' && (
+              <button onClick={() => setView('studentProfile')} className="hover:text-emerald-400 transition-colors cursor-pointer">Meu Perfil</button>
+            )}
+            <button onClick={() => setView('admin')} className="hover:text-emerald-400 transition-colors cursor-pointer">Admin</button>
           </nav>
 
           {/* CTA Header */}
@@ -322,6 +351,7 @@ export default function App() {
           <div className="lg:hidden bg-[#070b0d] border-b border-zinc-900 px-4 py-6 space-y-4 font-display font-bold text-sm uppercase tracking-wider">
             <button onClick={() => scrollToId('mercados')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Mercados Operados</button>
             <button onClick={() => scrollToId('calculadora')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Calculadora de Retorno</button>
+            <button onClick={() => scrollToId('academia')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Academia</button>
             <button onClick={() => scrollToId('depoimentos')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Prova Social & Depoimentos</button>
             <button onClick={() => scrollToId('mentor')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Sobre o LuCanto</button>
             <button onClick={() => scrollToId('faq')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Dúvidas Comuns</button>
@@ -420,75 +450,88 @@ export default function App() {
       </section>
 
       {/* CONTAINER PRINCIPAL */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-32">
-        
-        {/* SECTION 1: MERCADOS OPERADOS & SHOWCASE */}
-        <section id="mercados" className="space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-500/10">
-              Onde Operamos
-            </span>
-            <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase">
-              Mercados Selecionados
-            </h2>
-            <p className="text-sm md:text-base text-zinc-400 leading-relaxed">
-              Trabalhamos cirurgicamente nos ecossistemas com as maiores assimetrias matemáticas de probabilidade para maximizar seus ganhos de trading com segurança.
-            </p>
-          </div>
-
-          <MarketsShowcase />
-        </section>
-
-        {/* SECTION 2: CALCULADORA DE RETORNO */}
-        <section id="calculadora" className="space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-500/10">
-              ROI & Performance
-            </span>
-            <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase">
-              Simular Meu Potencial de Lucros
-            </h2>
-            <p className="text-sm md:text-base text-zinc-400 leading-relaxed">
-              Descubra por meio de dados reais de performance como sua banca pode crescer de forma exponencial aplicando inteligência estratégica e juros compostos.
-            </p>
-          </div>
-
-          <ReturnCalculator />
-        </section>
-
-        {/* SECTION 3: PROVA SOCIAL ROBUSTA */}
-        <section id="depoimentos" className="space-y-6">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-500/10">
-              Resultados de Alunos
-            </span>
-            <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase">
-              Comprovado Em Resultados
-            </h2>
-            <p className="text-sm md:text-base text-zinc-400 leading-relaxed">
-              Pessoas de todo o país que pararam de agir como amadores e aprenderam a operar baseados em dados reais.
-            </p>
-          </div>
-
-          <SocialProof />
-        </section>
-
-        {/* SECTION 4: O MENTOR LUCANTO */}
-        <section id="mentor" className="space-y-6">
-          <MentorSection />
-        </section>
-
-        {/* SECTION 5: VALORES & COMPRAS VITALÍCIAS */}
-        <section id="vagas" className="space-y-6">
-          <MentorshipOffer spotsLeft={spotsLeft} />
-        </section>
-
-        {/* SECTION 6: FAQ ACCORDION COMPLETO */}
-        <section id="faq" className="space-y-6">
-          <FAQ />
-        </section>
-
-      </main>
+      {view === 'admin' ? (
+        <AdminDashboard onBack={() => setView('home')} />
+      ) : view === 'studentProfile' ? (
+        <StudentProfile />
+      ) : (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-32">
+          
+          {/* SECTION 1: MERCADOS OPERADOS & SHOWCASE */}
+          <section id="mercados" className="space-y-6">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-500/10">
+                Onde Operamos
+              </span>
+              <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase">
+                Mercados Selecionados
+              </h2>
+              <p className="text-sm md:text-base text-zinc-400 leading-relaxed">
+                Trabalhamos cirurgicamente nos ecossistemas com as maiores assimetrias matemáticas de probabilidade para maximizar seus ganhos de trading com segurança.
+              </p>
+            </div>
+  
+            <MarketsShowcase />
+          </section>
+  
+          {/* SECTION 2: CALCULADORA DE RETORNO */}
+          <section id="calculadora" className="space-y-6">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-500/10">
+                ROI & Performance
+              </span>
+              <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase">
+                Simular Meu Potencial de Lucros
+              </h2>
+              <p className="text-sm md:text-base text-zinc-400 leading-relaxed">
+                Descubra por meio de dados reais de performance como sua banca pode crescer de forma exponencial aplicando inteligência estratégica e juros compostos.
+              </p>
+            </div>
+  
+            <ReturnCalculator />
+          </section>
+  
+          {/* SECTION 3: PROVA SOCIAL ROBUSTA */}
+          <section id="depoimentos" className="space-y-6">
+            <div className="text-center max-w-2xl mx-auto space-y-3">
+              <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950/60 px-2.5 py-1 rounded border border-emerald-500/10">
+                Resultados de Alunos
+              </span>
+              <h2 className="text-3xl md:text-5xl font-display font-black text-white uppercase">
+                Comprovado Em Resultados
+              </h2>
+              <p className="text-sm md:text-base text-zinc-400 leading-relaxed">
+                Pessoas de todo o país que pararam de agir como amadores e aprenderam a operar baseados em dados reais.
+              </p>
+            </div>
+  
+            <SocialProof />
+          </section>
+  
+          {/* SECTION 4: O MENTOR LUCANTO */}
+          <section id="mentor" className="space-y-6">
+            <MentorSection />
+          </section>
+  
+          {/* SECTION 5: VALORES & COMPRAS VITALÍCIAS */}
+          <section id="vagas" className="space-y-6">
+            <MentorshipOffer spotsLeft={spotsLeft} />
+          </section>
+  
+          {/* SECTION 6: ACADEMIA DUPLA FIFA */}
+          <AcademySection onSelectCourse={setActiveCourse} />
+  
+          {activeCourse && (
+            <CourseDetail course={activeCourse} onClose={() => setActiveCourse(null)} />
+          )}
+  
+          {/* SECTION 7: FAQ ACCORDION COMPLETO */}
+          <section id="faq" className="space-y-6">
+            <FAQ />
+          </section>
+  
+        </main>
+      )}
 
       {/* FOOTER PREMIUM COM AVISO DE JOGO RESPONSÁVEL E LEGALIDADE */}
       <footer className="bg-[#000000] border-t border-zinc-900 py-16 text-xs text-zinc-500 font-sans">

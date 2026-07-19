@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Course": {
+      "title": "Course",
+      "description": "A course containing modules.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "instructor": { "type": "string" },
+        "description": { "type": "string" },
+        "bannerUrl": { "type": "string" },
+        "duration": { "type": "string" }
+      },
+      "required": ["id", "title", "category"]
+    },
+    "User": {
+      "title": "User",
+      "description": "A user of the application.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/courses/{courseId}": {
+      "schema": "Course",
+      "description": "Courses collection"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Users collection"
+    }
+  }
+}
