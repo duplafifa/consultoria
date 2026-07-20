@@ -33,6 +33,7 @@ import MentorSection from './components/MentorSection';
 import MentorshipOffer from './components/MentorshipOffer';
 import AcademySection from './components/AcademySection';
 import CourseDetail from './components/CourseDetail';
+import MyCourses from './components/MyCourses';
 import StudentProfile from './components/StudentProfile';
 import AdminDashboard from './components/AdminDashboard';
 import LmsShell from './components/LmsShell';
@@ -43,6 +44,7 @@ import { Course } from './types';
 import { useAuth } from './context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
+import { migrateCourses } from './lib/seed';
 
 // Helper functions and constants
 interface CustomNotification {
@@ -139,7 +141,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms'>('home');
+  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms' | 'meusCursos'>('home');
   const [timeLeft, setTimeLeft] = useState(getCountdownTo18());
   const [spotsLeft, setSpotsLeft] = useState<number>(getInitialSpots());
   const [recentNotification, setRecentNotification] = useState<CustomNotification | null>(null);
@@ -187,6 +189,10 @@ export default function App() {
       setRecentNotification(null);
     }, 7000);
   };
+
+  useEffect(() => {
+    migrateCourses();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -297,6 +303,9 @@ export default function App() {
           {/* Menu de Navegação Desktop */}
           <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-zinc-400">
             <button onClick={() => { setView('home'); scrollToId('mercados'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Mercados</button>
+            {user && role !== 'admin' && (
+              <button onClick={() => setView('meusCursos')} className="hover:text-emerald-400 transition-colors cursor-pointer">Cursos</button>
+            )}
             <button onClick={() => { setView('home'); scrollToId('calculadora'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Análise & ROI</button>
             <button onClick={() => { setView('home'); scrollToId('academia'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Academia</button>
             <button onClick={() => { setView('home'); scrollToId('depoimentos'); }} className="hover:text-emerald-400 transition-colors cursor-pointer">Prova Social</button>
@@ -349,6 +358,9 @@ export default function App() {
         {mobileMenuOpen && (
           <div className="lg:hidden bg-[#070b0d] border-b border-zinc-900 px-4 py-6 space-y-4 font-display font-bold text-sm uppercase tracking-wider">
             <button onClick={() => scrollToId('mercados')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Mercados Operados</button>
+            {user && role !== 'admin' && (
+              <button onClick={() => { setView('meusCursos'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Meus Cursos</button>
+            )}
             <button onClick={() => scrollToId('calculadora')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Calculadora de Retorno</button>
             <button onClick={() => scrollToId('academia')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Academia</button>
             <button onClick={() => scrollToId('depoimentos')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Prova Social & Depoimentos</button>
@@ -457,6 +469,8 @@ export default function App() {
         <AdminDashboard onBack={() => setView('home')} />
       ) : view === 'lms' ? (
         <LmsShell onBack={() => setView('home')} />
+      ) : view === 'meusCursos' ? (
+        <MyCourses onSelectCourse={setActiveCourse} />
       ) : view === 'studentProfile' ? (
         <StudentProfile />
       ) : (

@@ -20,7 +20,7 @@ export default function AuthModal({ isOpen, onClose }: Props) {
           Fechar
         </button>
         <div className="bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-800 p-1">
-          <Auth />
+          <Auth onSuccess={onClose} />
         </div>
       </div>
     </div>

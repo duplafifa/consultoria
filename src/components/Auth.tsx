@@ -4,7 +4,11 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithP
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { UserRole } from '../types';
 
-export default function Auth() {
+interface Props {
+  onSuccess?: () => void;
+}
+
+export default function Auth({ onSuccess }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -22,6 +26,7 @@ export default function Auth() {
           role: 'student'
         });
       }
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error(error);
       alert('Erro no login com Google');
@@ -30,16 +35,18 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedEmail = email.trim();
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, trimmedEmail, password);
       } else {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, trimmedEmail, password);
         await setDoc(doc(db, 'users', userCredential.user.uid), {
-          email,
+          email: trimmedEmail,
           role
         });
       }
+      if (onSuccess) onSuccess();
     } catch (error) {
       console.error(error);
       alert('Erro na autenticação');
