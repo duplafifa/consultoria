@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { Course } from '../types';
-import { Save, ArrowLeft, BookOpen, Users } from 'lucide-react';
+import { Save, ArrowLeft, BookOpen, Users, Trash2 } from 'lucide-react';
 import ManageCourse from './ManageCourse';
 import UserManagement from './UserManagement';
 
@@ -39,6 +39,12 @@ export default function AdminDashboard({ onBack }: Props) {
       duration: "0",
       modules: []
     });
+    window.location.reload();
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este curso?')) return;
+    await deleteDoc(doc(db, 'courses', courseId));
     window.location.reload();
   };
 
@@ -98,6 +104,9 @@ export default function AdminDashboard({ onBack }: Props) {
                   </div>
                   <button onClick={() => setSelectedCourse(course)} className="text-emerald-400 hover:text-emerald-300 flex items-center font-bold text-sm">
                     <BookOpen className="w-4 h-4 mr-2" /> Gerenciar Conteúdo
+                  </button>
+                  <button onClick={() => handleDeleteCourse(course.id)} className="text-red-400 hover:text-red-300 flex items-center font-bold text-sm ml-4">
+                    <Trash2 className="w-4 h-4 mr-2" /> Excluir
                   </button>
                 </div>
               ))}

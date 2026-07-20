@@ -35,6 +35,7 @@ import AcademySection from './components/AcademySection';
 import CourseDetail from './components/CourseDetail';
 import StudentProfile from './components/StudentProfile';
 import AdminDashboard from './components/AdminDashboard';
+import LmsShell from './components/LmsShell';
 import FAQ from './components/FAQ';
 import Auth from './components/Auth';
 import { Course } from './types';
@@ -136,7 +137,7 @@ export default function App() {
   const { user, role, loading, error } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
-  const [view, setView] = useState<'home' | 'admin' | 'studentProfile'>('home');
+  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms'>('home');
   const [timeLeft, setTimeLeft] = useState(getCountdownTo18());
   const [spotsLeft, setSpotsLeft] = useState<number>(getInitialSpots());
   const [recentNotification, setRecentNotification] = useState<CustomNotification | null>(null);
@@ -341,7 +342,7 @@ export default function App() {
             <button onClick={() => scrollToId('depoimentos')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Prova Social & Depoimentos</button>
             <button onClick={() => scrollToId('mentor')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Sobre o LuCanto</button>
             <button onClick={() => scrollToId('faq')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Dúvidas Comuns</button>
-            <button onClick={() => { setView('admin'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Painel Admin</button>
+            <button onClick={() => { setView('lms'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Ambiente LMS</button>
             <div className="pt-4 border-t border-zinc-900">
               <button 
                 onClick={() => scrollToId('vagas')} 
@@ -439,6 +440,8 @@ export default function App() {
       {/* CONTAINER PRINCIPAL */}
       {view === 'admin' ? (
         <AdminDashboard onBack={() => setView('home')} />
+      ) : view === 'lms' ? (
+        <LmsShell onBack={() => setView('home')} />
       ) : view === 'studentProfile' ? (
         <StudentProfile />
       ) : (

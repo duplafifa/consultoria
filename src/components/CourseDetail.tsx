@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowLeft, Clock, BookOpen, Award, Users } from 'lucide-react';
+import { ArrowLeft, Clock, Award, Users } from 'lucide-react';
 import { Course } from '../types';
+import StudentCourseView from './StudentCourseView';
 
 interface Props {
   course: Course;
@@ -8,6 +9,14 @@ interface Props {
 }
 
 export default function CourseDetail({ course, onClose }: Props) {
+  // Mocked for now, this would come from user profile
+  const completedLessons: string[] = []; 
+
+  const handleLessonClick = (lesson: any) => {
+    console.log('Playing lesson:', lesson.title);
+    // TODO: Implement lesson player
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-[#0a0f12] overflow-y-auto">
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -36,26 +45,11 @@ export default function CourseDetail({ course, onClose }: Props) {
 
             <section className="space-y-6">
               <h3 className="text-2xl font-display font-bold text-white uppercase">Conteúdo do Curso</h3>
-              {course.modules.map((module) => (
-                <div key={module.id} className="space-y-4">
-                  <h4 className="text-lg font-bold text-emerald-400">{module.title}</h4>
-                  <div className="space-y-3">
-                    {module.lessons.map((lesson, index) => (
-                      <div key={lesson.id} className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-5 flex items-center gap-4 hover:border-emerald-500/30 transition-colors">
-                        <span className="font-mono text-zinc-500 text-lg font-bold w-8">{String(index + 1).padStart(2, '0')}</span>
-                        <div className="flex-1">
-                          <h4 className="font-bold text-white">{lesson.title}</h4>
-                          <p className="text-sm text-zinc-400">{lesson.description}</p>
-                        </div>
-                        <div className="flex items-center text-zinc-500 text-xs font-mono">
-                          <Clock className="w-3.5 h-3.5 mr-1.5" />
-                          {lesson.duration}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <StudentCourseView 
+                course={course} 
+                completedLessons={completedLessons} 
+                onLessonClick={handleLessonClick}
+              />
             </section>
           </div>
 
