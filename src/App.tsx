@@ -266,7 +266,7 @@ export default function App() {
       </div>
 
       {/* Header Fixo */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-[#070b0d]/90 border-b border-zinc-900/60 transition-all">
+      <header className="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-[#070b0d]/90 border-b border-zinc-900/60 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
           {/* Logo / Badge da Dupla Fifa */}
@@ -306,7 +306,14 @@ export default function App() {
               >
                 <LogOut className="w-4 h-4" />
               </button>
-            ) : null}
+            ) : (
+              <button
+                onClick={() => setView('login')}
+                className="px-5 py-2.5 rounded-xl border border-zinc-700 text-zinc-300 hover:text-white hover:border-white transition-all"
+              >
+                Login/Cadastro
+              </button>
+            )}
             <button 
               onClick={() => scrollToId('vagas')}
               className="px-5 py-2.5 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-zinc-950 font-display font-bold text-xs uppercase tracking-wider transition-all duration-300"
@@ -435,7 +442,7 @@ export default function App() {
       ) : view === 'studentProfile' ? (
         <StudentProfile />
       ) : (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-32">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-32 pt-24">
           
           {/* SECTION 1: MERCADOS OPERADOS & SHOWCASE */}
           <section id="mercados" className="space-y-6">
