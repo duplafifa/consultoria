@@ -47,8 +47,8 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-[#0a0f12] text-white">
-      <form onSubmit={handleSubmit} className="bg-zinc-900 p-8 rounded-2xl w-full max-w-md border border-zinc-800">
+    <div className="flex justify-center items-center w-full text-white p-4">
+      <form onSubmit={handleSubmit} className="p-8 rounded-2xl w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6">{isLogin ? 'Login' : 'Cadastro'}</h2>
         <input className="w-full bg-zinc-800 p-3 rounded mb-4" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input className="w-full bg-zinc-800 p-3 rounded mb-4" type="password" placeholder="Senha" value={password} onChange={(e) => setPassword(e.target.value)} />

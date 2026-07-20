@@ -36,6 +36,7 @@ import CourseDetail from './components/CourseDetail';
 import StudentProfile from './components/StudentProfile';
 import AdminDashboard from './components/AdminDashboard';
 import LmsShell from './components/LmsShell';
+import AuthModal from './components/AuthModal';
 import FAQ from './components/FAQ';
 import Auth from './components/Auth';
 import { Course } from './types';
@@ -137,25 +138,20 @@ export default function App() {
   const { user, role, loading, error } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
-  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms' | 'login'>('home');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms'>('home');
   const [timeLeft, setTimeLeft] = useState(getCountdownTo18());
   const [spotsLeft, setSpotsLeft] = useState<number>(getInitialSpots());
   const [recentNotification, setRecentNotification] = useState<CustomNotification | null>(null);
 
   const handleLmsAccess = () => {
     if (!user) {
-      setView('login');
+      setIsAuthModalOpen(true);
     } else {
       setView('lms');
     }
     setMobileMenuOpen(false);
   };
-
-  useEffect(() => {
-    if (user && view === 'login') {
-      setView('home');
-    }
-  }, [user, view]);
 
   const triggerStandardNotification = () => {
     const randomText = notificationsList[Math.floor(Math.random() * notificationsList.length)];
@@ -325,7 +321,7 @@ export default function App() {
               </button>
             ) : (
               <button
-                onClick={() => setView('login')}
+                onClick={() => setIsAuthModalOpen(true)}
                 className="px-5 py-2.5 rounded-xl border border-zinc-700 text-zinc-300 hover:text-white hover:border-white transition-all"
               >
                 Login/Cadastro
@@ -461,12 +457,11 @@ export default function App() {
         <AdminDashboard onBack={() => setView('home')} />
       ) : view === 'lms' ? (
         <LmsShell onBack={() => setView('home')} />
-      ) : view === 'login' ? (
-        <Auth />
       ) : view === 'studentProfile' ? (
         <StudentProfile />
       ) : (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-32 pt-24">
+          <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
           
           {/* SECTION 1: MERCADOS OPERADOS & SHOWCASE */}
           <section id="mercados" className="space-y-6">
