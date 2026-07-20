@@ -35,6 +35,7 @@ export type UserRole = 'student' | 'admin';
 export interface UserProfile {
   email: string;
   role: UserRole;
+  status?: 'pending' | 'approved';
   purchasedCourses: string[];
   completedLessons: string[];
 }

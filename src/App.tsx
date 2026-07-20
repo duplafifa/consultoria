@@ -298,6 +298,15 @@ export default function App() {
 
           {/* CTA Header */}
           <div className="hidden sm:flex items-center gap-4">
+            {user ? (
+              <button 
+                onClick={() => signOut(auth)}
+                className="p-2.5 rounded-xl border border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-all"
+                title="Sair"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            ) : null}
             <button 
               onClick={() => scrollToId('vagas')}
               className="px-5 py-2.5 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-zinc-950 font-display font-bold text-xs uppercase tracking-wider transition-all duration-300"
@@ -325,6 +334,7 @@ export default function App() {
             <button onClick={() => scrollToId('depoimentos')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Prova Social & Depoimentos</button>
             <button onClick={() => scrollToId('mentor')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Sobre o LuCanto</button>
             <button onClick={() => scrollToId('faq')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Dúvidas Comuns</button>
+            <button onClick={() => { setView('admin'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Painel Admin</button>
             <div className="pt-4 border-t border-zinc-900">
               <button 
                 onClick={() => scrollToId('vagas')} 
