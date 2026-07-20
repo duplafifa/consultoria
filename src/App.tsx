@@ -137,10 +137,25 @@ export default function App() {
   const { user, role, loading, error } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCourse, setActiveCourse] = useState<Course | null>(null);
-  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms'>('home');
+  const [view, setView] = useState<'home' | 'admin' | 'studentProfile' | 'lms' | 'login'>('home');
   const [timeLeft, setTimeLeft] = useState(getCountdownTo18());
   const [spotsLeft, setSpotsLeft] = useState<number>(getInitialSpots());
   const [recentNotification, setRecentNotification] = useState<CustomNotification | null>(null);
+
+  const handleLmsAccess = () => {
+    if (!user) {
+      setView('login');
+    } else {
+      setView('lms');
+    }
+    setMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    if (user && view === 'login') {
+      setView('home');
+    }
+  }, [user, view]);
 
   const triggerStandardNotification = () => {
     const randomText = notificationsList[Math.floor(Math.random() * notificationsList.length)];
@@ -244,7 +259,6 @@ export default function App() {
 
   if (loading) return <div className="text-white text-center p-20">Carregando...</div>;
   if (error) return <div className="text-red-500 text-center p-20">{error}</div>;
-  if (!user) return <Auth />;
 
   // Scroll suave com ID
   const scrollToId = (id: string) => {
@@ -294,7 +308,9 @@ export default function App() {
             {role === 'student' && (
               <button onClick={() => setView('studentProfile')} className="hover:text-emerald-400 transition-colors cursor-pointer">Meu Perfil</button>
             )}
-            <button onClick={() => setView('admin')} className="hover:text-emerald-400 transition-colors cursor-pointer">Admin</button>
+            {role === 'admin' && (
+              <button onClick={() => setView('admin')} className="hover:text-emerald-400 transition-colors cursor-pointer">Admin</button>
+            )}
           </nav>
 
           {/* CTA Header */}
@@ -342,7 +358,10 @@ export default function App() {
             <button onClick={() => scrollToId('depoimentos')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Prova Social & Depoimentos</button>
             <button onClick={() => scrollToId('mentor')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Sobre o LuCanto</button>
             <button onClick={() => scrollToId('faq')} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Dúvidas Comuns</button>
-            <button onClick={() => { setView('lms'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Ambiente LMS</button>
+            <button onClick={handleLmsAccess} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Ambiente LMS</button>
+            {role === 'admin' && (
+              <button onClick={() => { setView('admin'); setMobileMenuOpen(false); }} className="block w-full text-left py-2 text-zinc-400 hover:text-emerald-400">Painel Admin</button>
+            )}
             <div className="pt-4 border-t border-zinc-900">
               <button 
                 onClick={() => scrollToId('vagas')} 
@@ -442,6 +461,8 @@ export default function App() {
         <AdminDashboard onBack={() => setView('home')} />
       ) : view === 'lms' ? (
         <LmsShell onBack={() => setView('home')} />
+      ) : view === 'login' ? (
+        <Auth />
       ) : view === 'studentProfile' ? (
         <StudentProfile />
       ) : (
