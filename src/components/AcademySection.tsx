@@ -1,71 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlayCircle, Award, BookOpen, Clock } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { Course } from '../types';
-
-const courses: Course[] = [
-  {
-    id: '1',
-    title: "Fundamentos da Probabilidade",
-    category: "Iniciante",
-    duration: "45 min",
-    description: "Entenda os pilares matemáticos que sustentam apostas lucrativas a longo prazo.",
-    instructor: "LuCanto",
-    modules: [
-        { id: 'm1', title: 'Módulo 1', lessons: [
-            { id: 'l1', title: 'Introdução à Probabilidade', duration: '15 min', description: 'Conceitos básicos.' },
-            { id: 'l2', title: 'Valor Esperado (EV)', duration: '30 min', description: 'Calculando o valor.' }
-        ]}
-    ]
-  },
-  {
-    id: '2',
-    title: "Análise de Escanteios na Prática",
-    category: "Intermediário",
-    duration: "1h 15min",
-    description: "Aprenda a ler o fluxo de jogo e identificar oportunidades em escanteios.",
-    instructor: "LuCanto",
-    modules: [
-        { id: 'm2', title: 'Módulo 1', lessons: [
-            { id: 'l3', title: 'Fluxo de Jogo', duration: '40 min', description: 'Identificando padrões.' },
-            { id: 'l4', title: 'Execução de Escanteios', duration: '35 min', description: 'Entrada e saída.' }
-        ]}
-    ]
-  },
-  {
-    id: '3',
-    title: "Dominando o Mercado de Gols",
-    category: "Avançado",
-    duration: "50 min",
-    description: "Estratégias avançadas para o mercado de gols, focando em padrões estatísticos.",
-    instructor: "LuCanto",
-    modules: [
-        { id: 'm3', title: 'Módulo 1', lessons: [
-            { id: 'l5', title: 'Análise Estatística', duration: '25 min', description: 'Ferramentas.' },
-            { id: 'l6', title: 'Técnicas de Gols', duration: '25 min', description: 'Execução.' }
-        ]}
-    ]
-  },
-  {
-    id: '4',
-    title: "Leitura de Jogo em Tempo Real",
-    category: "Avançado",
-    duration: "1h 30min",
-    description: "Desenvolva a habilidade de ler o jogo em tempo real para entradas precisas.",
-    instructor: "LuCanto",
-    modules: [
-        { id: 'm4', title: 'Módulo 1', lessons: [
-            { id: 'l7', title: 'Leitura de Padrões', duration: '45 min', description: 'Visualizando jogo.' },
-            { id: 'l8', title: 'Tomada de Decisão', duration: '45 min', description: 'Execução rápida.' }
-        ]}
-    ]
-  }
-];
 
 interface Props {
   onSelectCourse: (course: Course) => void;
 }
 
 export default function AcademySection({ onSelectCourse }: Props) {
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const querySnapshot = await getDocs(collection(db, 'courses'));
+      setCourses(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Course)));
+    };
+    fetchCourses();
+  }, []);
+
   return (
     <section id="academia" className="py-20 bg-[#0a0f12] border-y border-zinc-900/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -82,7 +35,7 @@ export default function AcademySection({ onSelectCourse }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {courses.map((course) => {
+          {courses.filter(c => c.status === 'approved').map((course) => {
             return (
               <button 
                 key={course.id}

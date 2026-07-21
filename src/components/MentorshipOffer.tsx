@@ -3,9 +3,10 @@ import { ShieldCheck, CheckCircle2, Lock, ArrowRight, Smartphone, AlertTriangle,
 
 interface MentorshipOfferProps {
   spotsLeft?: number;
+  setIsCheckoutModalOpen: (open: boolean) => void;
 }
 
-export default function MentorshipOffer({ spotsLeft: propsSpotsLeft }: MentorshipOfferProps) {
+export default function MentorshipOffer({ spotsLeft: propsSpotsLeft, setIsCheckoutModalOpen }: MentorshipOfferProps) {
   const getDynamicSpots = () => {
     const now = new Date();
     const hours = now.getHours();
@@ -164,18 +165,16 @@ export default function MentorshipOffer({ spotsLeft: propsSpotsLeft }: Mentorshi
           </div>
 
           <div className="space-y-4">
-            {/* The Ultimate CTA connecting to Telegram */}
-            <a
-              href="https://t.me/+iQL8Cra9Dso3NDlh" 
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* The Ultimate CTA connecting to Checkout Modal */}
+            <button
+              onClick={() => setIsCheckoutModalOpen(true)}
               className="flex items-center justify-center gap-3 w-full bg-[#00FF66] hover:bg-neutral-100 text-black font-black font-display py-4 md:py-5 px-6 rounded-2xl text-center shadow-lg transition-all text-xs md:text-sm uppercase tracking-wider cursor-pointer"
               style={{ boxShadow: '0 0 20px rgba(0, 255, 102, 0.25)' }}
             >
-              <Send className="w-4 h-4 text-black fill-black shrink-0" />
-              REVELAR VALOR DA TAXA ÚNICA & GARANTIR MINHA VAGA NO TELEGRAM VIP
+              <Sparkles className="w-4 h-4 text-black fill-black shrink-0" />
+              GARANTIR MEU ACESSO VITALÍCIO AGORA
               <ArrowRight className="w-4 h-4 text-black shrink-0" />
-            </a>
+            </button>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-[10px] text-zinc-500 font-mono tracking-wider">
               <span className="flex items-center gap-1 text-[#00FF66]/80 font-bold">

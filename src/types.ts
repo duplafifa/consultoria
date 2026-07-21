@@ -38,6 +38,8 @@ export interface UserProfile {
   status?: 'pending' | 'approved';
   purchasedCourses: string[];
   completedLessons: string[];
+  createdAt?: string;
+  stripeCustomerId?: string;
 }
 
 export interface Lesson {
@@ -47,6 +49,7 @@ export interface Lesson {
   description: string;
   videoUrl?: string;
   bannerUrl?: string;
+  backgroundImageUrl?: string;
   textContent?: string;
 }
 
@@ -54,6 +57,7 @@ export interface Module {
   id: string;
   title: string;
   lessons: Lesson[];
+  backgroundImageUrl?: string;
 }
 
 export interface Course {
@@ -65,4 +69,8 @@ export interface Course {
   instructor: string;
   description: string;
   bannerUrl?: string;
+  createdAt?: string;
+  price?: number;
+  stripeProductId?: string;
+  status?: 'draft' | 'approved';
 }

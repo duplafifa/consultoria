@@ -6,9 +6,10 @@ interface Props {
   course: Course;
   completedLessons: string[];
   onLessonClick: (lesson: Lesson) => void;
+  onBack: () => void;
 }
 
-export default function StudentCourseView({ course, completedLessons, onLessonClick }: Props) {
+export default function StudentCourseView({ course, completedLessons, onLessonClick, onBack }: Props) {
   const [expandedModules, setExpandedModules] = useState<string[]>(course.modules.map(m => m.id));
 
   const toggleModule = (moduleId: string) => {
@@ -19,6 +20,9 @@ export default function StudentCourseView({ course, completedLessons, onLessonCl
 
   return (
     <div className="max-w-5xl mx-auto p-6 text-zinc-200">
+      <button onClick={onBack} className="text-emerald-500 hover:text-emerald-400 mb-4 flex items-center gap-2">
+         &larr; Voltar para Meus Cursos
+      </button>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-white">{course.title}</h1>
         <button className="px-4 py-2 bg-zinc-800 text-zinc-300 rounded-lg text-sm border border-zinc-700 hover:bg-zinc-700">
